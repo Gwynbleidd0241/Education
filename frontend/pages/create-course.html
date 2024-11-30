@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Создание образовательного курса</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(-45deg, #2c2c2c, #3a3a3a, #444, #2c2c2c);
+      background-size: 300% 300%;
+      animation: gradientBackground 6s ease infinite;
+      z-index: -1;
+    }
+
+    @keyframes gradientBackground {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background-color: rgba(58, 58, 58, 0.9); /* Полупрозрачный фон */
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    h1 {
+      font-size: 24px;
+      text-align: center;
+      color: #ffcc00;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #555;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 14px;
+      color: #fff;
+      background-color: #444;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 100px;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: #ffcc00;
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.3);
+    }
+
+    .form-actions {
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #000;
+      background-color: #ffcc00;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #e6b800;
+    }
+
+    .module-list {
+      margin-top: 20px;
+    }
+
+    .module-item {
+      background-color: #555;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 12px;
+      color: #fff;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .remove-btn:hover {
+      text-decoration: underline;
+    }
+
+    .error {
+      color: #ff6b6b;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Создание курса</h1>
+
+  <div id="error" class="error"></div>
+
+  <div class="form-group">
+    <label for="course-title">Название курса</label>
+    <input type="text" id="course-title" placeholder="Введите название курса">
+  </div>
+
+  <div class="form-group">
+    <label for="course-description">Описание курса</label>
+    <textarea id="course-description" placeholder="Введите описание курса"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="module-title">Название модуля</label>
+    <input type="text" id="module-title" placeholder="Введите название модуля">
+    <button class="btn" style="margin-top: 10px;" onclick="addModule()">Добавить модуль</button>
+  </div>
+
+  <div class="module-list" id="module-list"></div>
+
+  <div class="form-actions">
+    <button class="btn" onclick="saveCourse()">Сохранить курс</button>
+  </div>
+</div>
+
+<script>
+  let modules = [];
+
+  function addModule() {
+    const moduleTitle = document.getElementById('module-title').value.trim();
+    const errorDiv = document.getElementById('error');
+
+    if (!moduleTitle) {
+      errorDiv.textContent = 'Введите название модуля!';
+      return;
+    }
+
+    errorDiv.textContent = '';
+
+    modules.push(moduleTitle);
+    updateModuleList();
+    document.getElementById('module-title').value = '';
+  }
+
+  function updateModuleList() {
+    const moduleList = document.getElementById('module-list');
+    moduleList.innerHTML = '';
+
+    modules.forEach((module, index) => {
+      const moduleItem = document.createElement('div');
+      moduleItem.className = 'module-item';
+      moduleItem.innerHTML = `
+          <span>${module}</span>
+          <button class="remove-btn" onclick="removeModule(${index})">Удалить</button>
+        `;
+      moduleList.appendChild(moduleItem);
+    });
+  }
+
+  function removeModule(index) {
+    modules.splice(index, 1);
+    updateModuleList();
+  }
+
+  async function saveCourse() {
+    const courseTitle = document.getElementById('course-title').value.trim();
+    const courseDescription = document.getElementById('course-description').value.trim();
+    const errorDiv = document.getElementById('error');
+
+    if (!courseTitle || !courseDescription || modules.length === 0) {
+      errorDiv.textContent = 'Заполните все поля и добавьте хотя бы один модуль!';
+      return;
+    }
+
+    errorDiv.textContent = '';
+
+    const courseData = {
+      title: courseTitle,
+      description: courseDescription,
+      modules,
+    };
+
+    try {
+      const response = await fetch('http://localhost:8080/course', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(courseData),
+      });
+
+      if (!response.ok) throw new Error('Ошибка сохранения');
+
+      alert('Курс успешно сохранен!');
+      document.getElementById('course-title').value = '';
+      document.getElementById('course-description').value = '';
+      modules = [];
+      updateModuleList();
+    } catch (error) {
+      errorDiv.textContent = 'Не удалось сохранить курс. Попробуйте позже.';
+      console.error('Ошибка:', error);
+    }
+  }
+</script>
+</body>
+</html>
+
+

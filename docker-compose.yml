@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: frontend
+    ports:
+      - "2001:80"
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+  backend1:
+    build: ./backend
+    ports:
+      - "2002:8080"
+    volumes:
+      - ./logs:/root/logs
+    networks:
+      - app-network
+    depends_on:
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`localhost`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+
+  backend2:
+    build: ./backend
+
+    ports:
+      - "2003:8080"
+    volumes:
+      - ./logs:/root/logs
+    networks:
+      - app-network
+    depends_on:
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`localhost`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+
+  db:
+    container_name: appDB
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: appDB
+    volumes:
+      - data:/var/lib/postgresql/data
+      - ./sql-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entryPoints.web.address=:80"
+    ports:
+      - "8080:80"
+      - "80:8080"
+    networks:
+      - app-network
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+volumes:
+  data:
+
+networks:
+  app-network:
+    driver: bridge
