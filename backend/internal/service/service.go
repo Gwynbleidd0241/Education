@@ -3,29 +3,31 @@ package service
 import (
 	"Kursash/internal/models"
 	"Kursash/internal/repository"
-	"context"
 )
-
-type Service struct {
-	repo *repository.DB
-	CourseService
-	Authorization
-}
 
 type Authorization interface {
 	CreateUser(user models.UserModel) (int, error)
+	GenerateToken(username, password string) (string, error)
+	ParseToken(token string) (int, error)
 }
 
-type CourseService interface {
-	AddCourse(ctx context.Context, course models.CourseModel) error
-	GetCoursesList(ctx context.Context) ([]*models.CourseModel, error)
-	ChangeCourse(ctx context.Context, id int, title, description, instructor string) error
-	DeleteCourse(ctx context.Context, id int) error
-	GetCourse(ctx context.Context, id int) (*models.CourseModel, error)
+type CourseList interface {
+	Create(userId int, list models.CourseList) (int, error)
+	GetAll(userId int) ([]models.CourseList, error)
 }
 
-func NewService(repo *repository.DB) *Service {
+type CourseItem interface {
+}
+
+type Service struct {
+	Authorization
+	CourseList
+	CourseItem
+}
+
+func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		repo: repo,
+		Authorization: NewAuthService(repos.Authorization),
+		CourseList:    NewCourseListService(repos.CourseList),
 	}
 }

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     build: frontend
@@ -15,9 +13,8 @@ services:
   backend1:
     build: ./backend
     ports:
-      - "2002:8080"
-    volumes:
-      - ./logs:/root/logs
+      - "8083:8080"
+
     networks:
       - app-network
     depends_on:
@@ -29,11 +26,8 @@ services:
 
   backend2:
     build: ./backend
-
     ports:
-      - "2003:8080"
-    volumes:
-      - ./logs:/root/logs
+      - "8084:8080"
     networks:
       - app-network
     depends_on:
@@ -45,15 +39,15 @@ services:
 
   db:
     container_name: appDB
-    image: postgres:alpine
+    image: postgres:latest
     restart: always
     environment:
-      POSTGRES_USER: admin
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: appDB
+      POSTGRES_DB: postgres
     volumes:
       - data:/var/lib/postgresql/data
-      - ./sql-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./sql-init/init_up.sql:/docker-entrypoint-initdb.d/init_up.sql
     ports:
       - "5432:5432"
     networks:

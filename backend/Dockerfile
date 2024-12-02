@@ -13,8 +13,7 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=build /EduCourse/app /EduCourse/app
-COPY ./logs ./logs
 COPY ./config/config.yaml ./config/config.yaml
 
-EXPOSE 8080
+EXPOSE 8083
 CMD ["/EduCourse/app"]

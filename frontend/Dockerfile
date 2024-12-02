@@ -1,7 +1,7 @@
 FROM nginx:alpine
+COPY ./pages /usr/share/nginx/html/pages
+COPY ./nginx.conf /etc/nginx/nginx.conf
 
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY pages/ /usr/share/nginx/html/pages/
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

@@ -1,23 +1,13 @@
 package main
 
 import (
-	"Kursash/internal/config"
+	backend "Kursash"
 	"Kursash/internal/http-server/handlers"
-	"Kursash/internal/http-server/middleware"
 	"Kursash/internal/repository"
 	"Kursash/internal/service"
-	"Kursash/internal/storage/PostgreSQL"
-	"context"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	log "github.com/go-ozzo/ozzo-log"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/swag/example/basic/docs"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
+	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 // @title           EduCourse
@@ -25,62 +15,36 @@ import (
 // @host      localhost:8080
 
 func main() {
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		panic(err)
-	}
-	logger := setupLogger(cfg.LogsPath)
-	logger.Open()
-	defer logger.Close()
-	storage, err := PostgreSQL.NewStorage(context.TODO(), cfg.StoragePath)
-	if err != nil {
-		logger.Error(err.Error())
-		os.Exit(1)
-	}
-	logger.Info("Storage connected successfully")
-	repo := repository.NewDB(storage)
-	router := gin.Default()
-	CORSconfig := cors.DefaultConfig()
-	CORSconfig.AllowOrigins = []string{"*"}
-	CORSconfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
-	router.Use(cors.New(CORSconfig))
-	authMW, err := middleware.GetAuthMW(cfg.Username, cfg.Password)
-	if err != nil {
-		logger.Error("Error while getting auth middleware", "error", err)
-		os.Exit(1)
-	}
-	docs.SwaggerInfo.BasePath = "/"
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	serv := service.NewService(repo)
-	handler := handlers.NewHandler(router, serv, logger, authMW)
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	server := &http.Server{
-		Addr:         cfg.Address,
-		Handler:      handler,
-		ReadTimeout:  cfg.Timeout,
-		WriteTimeout: cfg.Timeout,
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+
+	if err := initConfig(); err != nil {
+		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
 
-	go func() {
-		if err := server.ListenAndServe(); err != nil {
-			logger.Error("failed to start server: %s", err.Error())
-		}
-	}()
+	db, err := repository.NewPostgresDB(repository.Config{
+		Host:     viper.GetString("db.host"),
+		Port:     viper.GetString("db.port"),
+		Username: viper.GetString("db.username"),
+		DBName:   viper.GetString("db.dbname"),
+		SSLMode:  viper.GetString("db.sslmode"),
+		Password: viper.GetString("db.password"),
+	})
+	if err != nil {
+		logrus.Fatalf("failed to initialize db: %s", err.Error())
+	}
 
-	logger.Info("Server started successfully")
-	<-signalChan
+	repos := repository.NewRepository(db)
+	services := service.NewService(repos)
+	handlers := handlers.NewHandler(services)
 
-	logger.Info("Shutting down the server")
+	srv := new(backend.Server)
+	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
+		logrus.Fatal("error occured while running hhtp server: %s", err.Error())
+	}
 }
 
-func setupLogger(logsPath string) *log.Logger {
-	logger := log.NewLogger()
-
-	t1 := log.NewConsoleTarget()
-	t2 := log.NewFileTarget()
-	t2.FileName = logsPath
-	logger.Targets = append(logger.Targets, t1, t2)
-
-	return logger
+func initConfig() error {
+	viper.AddConfigPath("config")
+	viper.SetConfigName("config")
+	return viper.ReadInConfig()
 }

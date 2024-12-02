@@ -1,9 +1,9 @@
-storage_path: "postgres://admin:admin@db:5432/appDB?sslmode=disable"
-logs_path: "logs/app.logs"
-http_server:
-  address: "0.0.0.0:8080"
-  timeout: 4s
+port : "8083"
 
-user:
-  username: "admin"
+db:
+  username: "postgres"
+  host: "localhost"
+  port: "5432"
+  dbname: "postgres"
+  sslmode: "disable"
   password: "admin"
