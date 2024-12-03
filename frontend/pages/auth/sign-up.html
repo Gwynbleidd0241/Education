@@ -115,8 +115,33 @@
 
         .message {
             text-align: center;
-            color: #ff6b6b;
             margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .message.success {
+            color: #4caf50; /* Зелёный для успеха */
+        }
+
+        .message.error {
+            color: #ff6b6b; /* Красный для ошибок */
+        }
+
+        #passwordStrength {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .strength-weak {
+            color: #ff6b6b; /* Красный для слабого пароля */
+        }
+
+        .strength-medium {
+            color: #ffcc00; /* Жёлтый для среднего пароля */
+        }
+
+        .strength-strong {
+            color: #4caf50; /* Зелёный для сильного пароля */
         }
 
         @media (max-width: 480px) {
@@ -152,6 +177,7 @@
     <div class="form-group">
         <label for="signUpPassword">Пароль</label>
         <input type="password" id="signUpPassword" placeholder="Пароль" required>
+        <div id="passwordStrength"></div>
     </div>
     <div class="form-actions">
         <button class="btn" onclick="signUp()">Зарегистрироваться</button>
@@ -164,36 +190,73 @@
         window.location.href = '/auth/sign-in.html';
     }
 
-    function signUp() {
+    document.getElementById('signUpPassword').addEventListener('input', () => {
+        const password = document.getElementById('signUpPassword').value;
+        const strengthIndicator = document.getElementById('passwordStrength');
+
+        if (password.length < 6) {
+            strengthIndicator.innerText = 'Слабый пароль';
+            strengthIndicator.className = 'strength-weak';
+        } else if (password.length < 10) {
+            strengthIndicator.innerText = 'Средний пароль';
+            strengthIndicator.className = 'strength-medium';
+        } else {
+            strengthIndicator.innerText = 'Сильный пароль';
+            strengthIndicator.className = 'strength-strong';
+        }
+    });
+
+    async function signUp() {
         const username = document.getElementById('signUpUsername').value.trim();
         const email = document.getElementById('signUpEmail').value.trim();
         const password = document.getElementById('signUpPassword').value.trim();
+        const messageElement = document.getElementById('signUpMessage');
 
         if (!username || !email || !password) {
-            document.getElementById('signUpMessage').innerText = 'Все поля обязательны для заполнения!';
+            messageElement.innerText = 'Все поля обязательны для заполнения!';
+            messageElement.className = 'message error';
             return;
         }
 
-        fetch(`http://localhost:8083/auth/sign-up`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, email, password }),
-        })
-            .then((response) => {
-                if (!response.ok) throw new Error('Ошибка при регистрации.');
-                return response.json();
-            })
-            .then(() => {
-                document.getElementById('signUpMessage').innerText = 'Регистрация успешна. Переход на страницу входа...';
-                setTimeout(() => redirectToLogin(), 2000);
-            })
-            .catch((error) => {
-                document.getElementById('signUpMessage').innerText = error.message;
-            });
+        const backends = [
+            'http://localhost:8083/auth/sign-up',
+            'http://localhost:8084/auth/sign-up',
+        ];
+
+        let success = false;
+        let errorMessage = '';
+
+        for (let i = 0; i < backends.length; i++) {
+            try {
+                const response = await fetch(backends[i], {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password }),
+                });
+
+                if (response.ok) {
+                    success = true;
+                    messageElement.innerText = 'Регистрация успешна. Переход на страницу входа...';
+                    messageElement.className = 'message success';
+                    setTimeout(() => redirectToLogin(), 3000);
+                    break;
+                } else {
+                    errorMessage = `Ошибка на сервере ${backends[i]}: ${response.statusText}`;
+                    console.error(errorMessage);
+                }
+            } catch (error) {
+                console.error(`Сервер ${backends[i]} недоступен:`, error);
+                errorMessage = `Сервер ${backends[i]} недоступен.`;
+            }
+        }
+
+        if (!success) {
+            messageElement.innerText = errorMessage || 'Не удалось зарегистрироваться. Попробуйте позже.';
+            messageElement.className = 'message error';
+        }
     }
 </script>
 </body>
 </html>
-

@@ -20,3 +20,19 @@ func (s *CourseListService) Create(userId int, list models.CourseList) (int, err
 func (s *CourseListService) GetAll(userId int) ([]models.CourseList, error) {
 	return s.repo.GetAll(userId)
 }
+
+func (s *CourseListService) GetById(userId, listId int) (models.CourseList, error) {
+	return s.repo.GetById(userId, listId)
+}
+
+func (s *CourseListService) Delete(userId, listId int) error {
+	return s.repo.Delete(userId, listId)
+}
+
+func (s *CourseListService) Update(userId, listId int, input models.UpdateListInput) error {
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	return s.repo.Update(userId, listId, input)
+}

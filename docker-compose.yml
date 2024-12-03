@@ -13,11 +13,13 @@ services:
   backend1:
     build: ./backend
     ports:
-      - "8083:8080"
+      - "8083:8083"
 
     networks:
       - app-network
     depends_on:
+      - db
+    links:
       - db
     labels:
       - "traefik.enable=true"
@@ -27,10 +29,12 @@ services:
   backend2:
     build: ./backend
     ports:
-      - "8084:8080"
+      - "8084:8083"
     networks:
       - app-network
     depends_on:
+      - db
+    links:
       - db
     labels:
       - "traefik.enable=true"
@@ -38,18 +42,18 @@ services:
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
 
   db:
-    container_name: appDB
-    image: postgres:latest
+    image: postgres:15
+    container_name: postgres
     restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: postgres
-    volumes:
-      - data:/var/lib/postgresql/data
-      - ./sql-init/init_up.sql:/docker-entrypoint-initdb.d/init_up.sql
     ports:
       - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql-init/init.up.sql:/docker-entrypoint-initdb.d/init_up.sql
     networks:
       - app-network
 
@@ -69,7 +73,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
 
 volumes:
-  data:
+  postgres_data:
 
 networks:
   app-network:

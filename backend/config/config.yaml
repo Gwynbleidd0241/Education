@@ -2,8 +2,14 @@ port : "8083"
 
 db:
   username: "postgres"
-  host: "localhost"
+  host: "postgres"
   port: "5432"
   dbname: "postgres"
   sslmode: "disable"
-  password: "admin"
+  password: "postgres"
+
+email:
+  host: "smtp.gmail.com"
+  port: 587
+  username: "gwynbleiddeducourse@gmail.com"
+  password: "ppgarwpwchflcyvk"

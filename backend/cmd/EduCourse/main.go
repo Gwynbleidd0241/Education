@@ -5,6 +5,9 @@ import (
 	"Kursash/internal/http-server/handlers"
 	"Kursash/internal/repository"
 	"Kursash/internal/service"
+	"Kursash/notifications"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -33,12 +36,25 @@ func main() {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
 
+	router := gin.Default()
+	CORSconfig := cors.DefaultConfig()
+	CORSconfig.AllowOrigins = []string{"http://google.com", "http://localhost:2001"} // Указываем разрешенные источники
+	CORSconfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	router.Use(cors.New(CORSconfig))
+
+	mailSender := notifications.NewMailSender(
+		viper.GetString("email.host"),
+		viper.GetInt("email.port"),
+		viper.GetString("email.username"),
+		viper.GetString("email.password"),
+	)
+
 	repos := repository.NewRepository(db)
-	services := service.NewService(repos)
+	services := service.NewService(repos, service.NewNotifications(mailSender))
 	handlers := handlers.NewHandler(services)
 
 	srv := new(backend.Server)
-	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
+	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes(router)); err != nil {
 		logrus.Fatal("error occured while running hhtp server: %s", err.Error())
 	}
 }

@@ -1,6 +1,7 @@
 package notifications
 
 import (
+	"crypto/tls"
 	"gopkg.in/gomail.v2"
 	"log"
 	"os"
@@ -29,12 +30,15 @@ func (m *MailSender) SendEmail(to string, subject string, body string, attachmen
 	}
 
 	dialer := gomail.NewDialer(m.Host, m.Port, m.Username, m.Password)
-	dialer.SSL = true
+	dialer.SSL = false
+	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	if err := dialer.DialAndSend(message); err != nil {
+		log.Printf("Failed to send email: %s", err)
 		return err
 	}
 
+	log.Printf("Email successfully sent to %s", to)
 	return nil
 }
 

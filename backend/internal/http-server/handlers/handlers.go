@@ -13,8 +13,7 @@ func NewHandler(services *service.Service) *Handler {
 	return &Handler{services: services}
 }
 
-func (h *Handler) InitRoutes() *gin.Engine {
-	router := gin.New()
+func (h *Handler) InitRoutes(router *gin.Engine) *gin.Engine {
 
 	auth := router.Group("/auth")
 	{
@@ -28,18 +27,18 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			lists.POST("/", h.createList)
 			lists.GET("/", h.getAllLists)
-			lists.GET("/:id")
-			lists.PUT("/:id")
-			lists.DELETE("/:id")
+			lists.GET("/:id", h.getListById)
+			lists.PUT("/:id", h.updateList)
+			lists.DELETE("/:id", h.deleteList)
 
-			items := lists.Group(":id/items")
+			items := lists.Group(":id/courses")
 			{
 				items.POST("/", h.createCourse)
-				items.GET("/", h.getAllCourses)
+				items.GET("/", h.getAllItems)
 			}
 		}
 
-		items := api.Group("items")
+		items := api.Group("courses")
 		{
 			items.GET("/:id", h.getCourseById)
 			items.PUT("/:id", h.updateCourse)

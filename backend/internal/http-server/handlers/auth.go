@@ -3,6 +3,7 @@ package handlers
 import (
 	"Kursash/internal/models"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -17,6 +18,17 @@ func (h *Handler) SignUp(c *gin.Context) {
 	id, err := h.services.Authorization.CreateUser(input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	subject := "Добро пожаловать в EduCourse Gwynbleidd!"
+	body := "Поздравляем с успешной регистрацией! Желаем успехов в обучении."
+	if err := h.services.Notifications.SendEmail(input.Email, subject, body, nil); err != nil {
+		log.Printf("Failed to send email to %s: %s", input.Email, err.Error())
+		c.JSON(http.StatusOK, map[string]interface{}{
+			"id":      id,
+			"message": "User registered successfully, but email notification failed.",
+		})
 		return
 	}
 

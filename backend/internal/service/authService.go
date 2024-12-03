@@ -3,6 +3,7 @@ package service
 import (
 	"Kursash/internal/models"
 	"Kursash/internal/repository"
+	"Kursash/notifications"
 	"crypto/sha1"
 	"errors"
 	"fmt"
@@ -76,4 +77,14 @@ func generatePasswordHash(password string) string {
 	hash.Write([]byte(password))
 
 	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
+}
+
+func NewNotifications(mailSender *notifications.MailSender) *Notifications {
+	return &Notifications{
+		MailSender: mailSender,
+	}
+}
+
+func (n *Notifications) SendEmail(to, subject, body string, attachments []string) error {
+	return n.MailSender.SendEmail(to, subject, body, attachments)
 }
