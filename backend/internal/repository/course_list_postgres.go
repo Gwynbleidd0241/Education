@@ -8,22 +8,22 @@ import (
 	"strings"
 )
 
-type CourseListPostgres struct {
+type CoursePostgres struct {
 	db *sqlx.DB
 }
 
-func NewCourseListPostgres(db *sqlx.DB) *CourseListPostgres {
-	return &CourseListPostgres{db: db}
+func NewCoursePostgres(db *sqlx.DB) *CoursePostgres {
+	return &CoursePostgres{db: db}
 }
 
-func (r *CourseListPostgres) Create(userId int, list models.CourseList) (int, error) {
+func (r *CoursePostgres) Create(userId int, list models.Course) (int, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
 		return 0, err
 	}
 
 	var id int
-	createListQuery := fmt.Sprintf("INSERT INTO %s (title, description, image_url, course_url) VALUES ($1, $2, $3, $4) RETURNING id", courseListsTable)
+	createListQuery := fmt.Sprintf("INSERT INTO %s (title, description, image_url, course_url) VALUES ($1, $2, $3, $4) RETURNING id", courseTable)
 	row := tx.QueryRow(createListQuery, list.Title, list.Description, list.Image_url, list.Course_url)
 	if err := row.Scan(&id); err != nil {
 		tx.Rollback()
@@ -40,36 +40,36 @@ func (r *CourseListPostgres) Create(userId int, list models.CourseList) (int, er
 	return id, tx.Commit()
 }
 
-func (r *CourseListPostgres) GetAll(userId int) ([]models.CourseList, error) {
-	var lists []models.CourseList
+func (r *CoursePostgres) GetAll(userId int) ([]models.Course, error) {
+	var lists []models.Course
 
 	query := fmt.Sprintf("SELECT tl.id, tl.title, tl.description, tl.image_url, tl.course_url FROM %s tl INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1",
-		courseListsTable, usersListsTable)
+		courseTable, usersListsTable)
 	err := r.db.Select(&lists, query, userId)
 
 	return lists, err
 }
 
-func (r *CourseListPostgres) GetById(userId, listId int) (models.CourseList, error) {
-	var list models.CourseList
+func (r *CoursePostgres) GetById(userId, listId int) (models.Course, error) {
+	var list models.Course
 
 	query := fmt.Sprintf(`SELECT tl.id, tl.title, tl.description, tl.image_url, tl.course_url FROM %s tl
 								INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1 AND ul.list_id = $2`,
-		courseListsTable, usersListsTable)
+		courseTable, usersListsTable)
 	err := r.db.Get(&list, query, userId, listId)
 
 	return list, err
 }
 
-func (r *CourseListPostgres) Delete(userId, listId int) error {
+func (r *CoursePostgres) Delete(userId, listId int) error {
 	query := fmt.Sprintf("DELETE FROM %s tl USING %s ul WHERE tl.id = ul.list_id AND ul.user_id=$1 AND ul.list_id=$2",
-		courseListsTable, usersListsTable)
+		courseTable, usersListsTable)
 	_, err := r.db.Exec(query, userId, listId)
 
 	return err
 }
 
-func (r *CourseListPostgres) Update(userId, listId int, input models.UpdateListInput) error {
+func (r *CoursePostgres) Update(userId, listId int, input models.UpdateCourseInput) error {
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
 	argId := 1
@@ -101,7 +101,7 @@ func (r *CourseListPostgres) Update(userId, listId int, input models.UpdateListI
 	setQuery := strings.Join(setValues, ", ")
 
 	query := fmt.Sprintf("UPDATE %s tl SET %s FROM %s ul WHERE tl.id = ul.list_id AND ul.list_id=$%d AND ul.user_id=$%d",
-		courseListsTable, setQuery, usersListsTable, argId, argId+1)
+		courseTable, setQuery, usersListsTable, argId, argId+1)
 	args = append(args, listId, userId)
 
 	logrus.Debugf("updateQuery: %s", query)

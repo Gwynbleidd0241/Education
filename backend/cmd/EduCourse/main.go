@@ -38,8 +38,9 @@ func main() {
 
 	router := gin.Default()
 	CORSconfig := cors.DefaultConfig()
-	CORSconfig.AllowOrigins = []string{"http://google.com", "http://localhost:2001"} // Указываем разрешенные источники
+	CORSconfig.AllowOrigins = []string{"http://google.com", "http://localhost:2001"}
 	CORSconfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	CORSconfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE"}
 	router.Use(cors.New(CORSconfig))
 
 	mailSender := notifications.NewMailSender(

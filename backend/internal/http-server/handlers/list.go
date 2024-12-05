@@ -7,20 +7,20 @@ import (
 	"strconv"
 )
 
-func (h *Handler) createList(c *gin.Context) {
+func (h *Handler) createCourse(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	var input models.CourseList
+	var input models.Course
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := h.services.CourseList.Create(userId, input)
+	id, err := h.services.Course.Create(userId, input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -32,17 +32,17 @@ func (h *Handler) createList(c *gin.Context) {
 }
 
 type getAllListsResponse struct {
-	Data []models.CourseList `json:"data"`
+	Data []models.Course `json:"data"`
 }
 
-func (h *Handler) getAllLists(c *gin.Context) {
+func (h *Handler) getAllCourses(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	lists, err := h.services.CourseList.GetAll(userId)
+	lists, err := h.services.Course.GetAll(userId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -53,7 +53,7 @@ func (h *Handler) getAllLists(c *gin.Context) {
 	})
 }
 
-func (h *Handler) getListById(c *gin.Context) {
+func (h *Handler) getCoursesById(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -66,7 +66,7 @@ func (h *Handler) getListById(c *gin.Context) {
 		return
 	}
 
-	list, err := h.services.CourseList.GetById(userId, id)
+	list, err := h.services.Course.GetById(userId, id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -75,7 +75,7 @@ func (h *Handler) getListById(c *gin.Context) {
 	c.JSON(http.StatusOK, list)
 }
 
-func (h *Handler) updateList(c *gin.Context) {
+func (h *Handler) updateCourses(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -88,13 +88,13 @@ func (h *Handler) updateList(c *gin.Context) {
 		return
 	}
 
-	var input models.UpdateListInput
+	var input models.UpdateCourseInput
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err := h.services.CourseList.Update(userId, id, input); err != nil {
+	if err := h.services.Course.Update(userId, id, input); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -102,7 +102,7 @@ func (h *Handler) updateList(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 
-func (h *Handler) deleteList(c *gin.Context) {
+func (h *Handler) deleteCourses(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -115,7 +115,7 @@ func (h *Handler) deleteList(c *gin.Context) {
 		return
 	}
 
-	err = h.services.CourseList.Delete(userId, id)
+	err = h.services.Course.Delete(userId, id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

@@ -23,26 +23,13 @@ func (h *Handler) InitRoutes(router *gin.Engine) *gin.Engine {
 
 	api := router.Group("/api", h.userIdentity)
 	{
-		lists := api.Group("/lists")
+		courses := api.Group("/courses")
 		{
-			lists.POST("/", h.createList)
-			lists.GET("/", h.getAllLists)
-			lists.GET("/:id", h.getListById)
-			lists.PUT("/:id", h.updateList)
-			lists.DELETE("/:id", h.deleteList)
-
-			items := lists.Group(":id/courses")
-			{
-				items.POST("/", h.createCourse)
-				items.GET("/", h.getAllItems)
-			}
-		}
-
-		items := api.Group("courses")
-		{
-			items.GET("/:id", h.getCourseById)
-			items.PUT("/:id", h.updateCourse)
-			items.DELETE("/:id", h.deleteCourse)
+			courses.POST("/", h.createCourse)
+			courses.GET("/", h.getAllCourses)
+			courses.GET("/:id", h.getCoursesById)
+			courses.PUT("/:id", h.updateCourses)
+			courses.DELETE("/:id", h.deleteCourses)
 		}
 	}
 	return router

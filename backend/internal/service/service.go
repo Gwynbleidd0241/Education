@@ -16,31 +16,24 @@ type Authorization interface {
 	ParseToken(token string) (int, error)
 }
 
-type CourseList interface {
-	Create(userId int, list models.CourseList) (int, error)
-	GetAll(userId int) ([]models.CourseList, error)
-	GetById(userId, listId int) (models.CourseList, error)
+type Course interface {
+	Create(userId int, list models.Course) (int, error)
+	GetAll(userId int) ([]models.Course, error)
+	GetById(userId, listId int) (models.Course, error)
 	Delete(userId, listId int) error
-	Update(userId, listId int, input models.UpdateListInput) error
-}
-
-type CourseItem interface {
-	Create(userId, listId int, item models.CourseItem) (int, error)
-	GetAll(userId, listId int) ([]models.CourseItem, error)
+	Update(userId, listId int, input models.UpdateCourseInput) error
 }
 
 type Service struct {
 	Authorization
-	CourseList
-	CourseItem
+	Course
 	Notifications *Notifications
 }
 
 func NewService(repos *repository.Repository, notifications *Notifications) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
-		CourseList:    NewCourseListService(repos.CourseList),
-		CourseItem:    NewCourseItemService(repos.CourseItem, repos.CourseList),
+		Course:        NewCourseService(repos.Course),
 		Notifications: notifications,
 	}
 }

@@ -5,31 +5,31 @@ import (
 	"Kursash/internal/repository"
 )
 
-type CourseListService struct {
-	repo repository.CourseList
+type CourseService struct {
+	repo repository.Course
 }
 
-func NewCourseListService(repo repository.CourseList) *CourseListService {
-	return &CourseListService{repo: repo}
+func NewCourseService(repo repository.Course) *CourseService {
+	return &CourseService{repo: repo}
 }
 
-func (s *CourseListService) Create(userId int, list models.CourseList) (int, error) {
+func (s *CourseService) Create(userId int, list models.Course) (int, error) {
 	return s.repo.Create(userId, list)
 }
 
-func (s *CourseListService) GetAll(userId int) ([]models.CourseList, error) {
+func (s *CourseService) GetAll(userId int) ([]models.Course, error) {
 	return s.repo.GetAll(userId)
 }
 
-func (s *CourseListService) GetById(userId, listId int) (models.CourseList, error) {
+func (s *CourseService) GetById(userId, listId int) (models.Course, error) {
 	return s.repo.GetById(userId, listId)
 }
 
-func (s *CourseListService) Delete(userId, listId int) error {
+func (s *CourseService) Delete(userId, listId int) error {
 	return s.repo.Delete(userId, listId)
 }
 
-func (s *CourseListService) Update(userId, listId int, input models.UpdateListInput) error {
+func (s *CourseService) Update(userId, listId int, input models.UpdateCourseInput) error {
 	if err := input.Validate(); err != nil {
 		return err
 	}

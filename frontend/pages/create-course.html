@@ -119,6 +119,12 @@
       margin-top: 10px;
     }
 
+    .success {
+      color: #4caf50;
+      text-align: center;
+      margin-top: 10px;
+    }
+
     @media (max-width: 480px) {
       body {
         padding: 20px;
@@ -139,7 +145,7 @@
 <body>
 <div class="container">
   <h1>Создание курса</h1>
-  <div id="error" class="error"></div>
+  <div id="status" class="error"></div>
 
   <div class="form-group">
     <label for="course-title">Название курса</label>
@@ -172,43 +178,60 @@
     const courseDescription = document.getElementById('course-description').value.trim();
     const courseImage = document.getElementById('course-image').value.trim();
     const courseLink = document.getElementById('course-link').value.trim();
-    const errorDiv = document.getElementById('error');
+    const statusDiv = document.getElementById('status');
 
     if (!courseTitle || !courseDescription || !courseImage || !courseLink) {
-      errorDiv.textContent = 'Заполните все поля!';
+      statusDiv.textContent = 'Заполните все поля!';
+      statusDiv.className = 'error';
       return;
     }
 
-    errorDiv.textContent = '';
+    statusDiv.textContent = '';
 
     const courseData = {
-      name: courseTitle,
+      title: courseTitle,
       description: courseDescription,
       image_url: courseImage,
-      course_url: courseLink
+      course_url: courseLink,
     };
 
-    try {
-      const response = await fetch('http://localhost:8083/courses', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(courseData),
-      });
+    const backends = ['http://localhost:8083/api/courses/', 'http://localhost:8084/api/courses/'];
 
-      if (!response.ok) throw new Error('Ошибка сохранения');
+    for (let backend of backends) {
+      try {
+        const response = await fetch(backend, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(courseData),
+        });
 
-      alert('Курс успешно сохранен!');
-      document.getElementById('course-title').value = '';
-      document.getElementById('course-description').value = '';
-      document.getElementById('course-image').value = '';
-      document.getElementById('course-link').value = '';
-    } catch (error) {
-      errorDiv.textContent = 'Не удалось сохранить курс. Попробуйте позже.';
-      console.error('Ошибка:', error);
+        if (response.ok) {
+          statusDiv.textContent = 'Курс успешно сохранен!';
+          statusDiv.className = 'success';
+
+          document.getElementById('course-title').value = '';
+          document.getElementById('course-description').value = '';
+          document.getElementById('course-image').value = '';
+          document.getElementById('course-link').value = '';
+
+          setTimeout(() => {
+            window.location.href = 'course-list.html';
+          }, 1000);
+
+          return;
+        }
+      } catch (error) {
+        console.error(`Ошибка отправки на сервер ${backend}:`, error);
+      }
     }
+
+    statusDiv.textContent = 'Не удалось сохранить курс. Попробуйте позже.';
+    statusDiv.className = 'error';
   }
+
 </script>
 </body>
 </html>

@@ -7,7 +7,7 @@ services:
       - app-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
+      - "traefik.http.routers.frontend.rule=Host(`frontend.localhost`)"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
   backend1:
@@ -23,7 +23,7 @@ services:
       - db
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`localhost`)"
+      - "traefik.http.routers.backend.rule=Host(`backend1.localhost`)"
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
 
   backend2:
@@ -38,7 +38,7 @@ services:
       - db
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`localhost`)"
+      - "traefik.http.routers.backend.rule=Host(`backend2.localhost`)"
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
 
   db:

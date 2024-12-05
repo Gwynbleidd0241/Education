@@ -5,11 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Курсы</title>
     <style>
+        /* Основной стиль */
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #2c2c2c;
+            background-color: #1c1c1c;
             color: #fff;
             margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1;
             padding: 20px;
         }
 
@@ -29,12 +38,27 @@
         }
 
         .header .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .header .logo span {
             font-size: 1.5em;
             color: #ffcc00;
         }
 
-        .header .logout-btn {
-            background-color: #e74c3c;
+        .header .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header button {
+            background-color: #555;
             color: white;
             border: none;
             border-radius: 5px;
@@ -42,8 +66,16 @@
             cursor: pointer;
         }
 
-        .header .logout-btn:hover {
-            background-color: #c0392b;
+        .header button:hover {
+            background-color: #777;
+        }
+
+        .header .add-course-btn {
+            background-color: #f39c10;
+        }
+
+        .header .add-course-btn:hover {
+            background-color: #f39c19;
         }
 
         .courses-list {
@@ -59,101 +91,222 @@
             background-color: #3a3a3a;
             border: 1px solid #ffcc00;
             border-radius: 8px;
-            padding: 15px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .course-options {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 1.5em;
+            color: #fff;
+        }
+
+        .course-menu {
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            background-color: #3a3a3a;
+            border: 1px solid #ffcc00;
+            border-radius: 4px;
+            display: none;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .course-menu button {
+            background: none;
+            color: white;
+            border: none;
+            padding: 10px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .course-menu button:hover {
+            background-color: #555;
         }
 
         .course-image {
-            width: 150px;
-            height: 150px;
+            width: 200px;
+            height: 200px;
             object-fit: cover;
             border-radius: 4px;
         }
 
         .course-title {
-            margin: 10px 0 5px;
-            font-size: 1.2em;
+            margin: 15px 0 10px;
+            font-size: 1.5em;
             color: #f39c12;
         }
 
         .course-description {
             color: #bdc3c7;
-            font-size: 0.9em;
-            margin-bottom: 10px;
+            font-size: 1em;
+            margin-bottom: 15px;
         }
 
-        .btn {
-            padding: 10px;
+        .course-btn {
+            background-color: #3498db;
+            color: #fff;
             border: none;
             border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 1em;
             cursor: pointer;
-            margin: 5px;
+            margin-top: auto;
+        }
+
+        .course-btn:hover {
+            background-color: #2980b9;
+        }
+
+        footer {
+            background-color: #3a3a3a;
+            color: #bdc3c7;
+            text-align: center;
+            padding: 10px;
+            font-size: 0.8em;
+            border-top: 2px solid #ffcc00;
+        }
+
+        footer a {
+            color: #ffcc00;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Стиль модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.95);
+            border: 1px solid #ffcc00;
+            border-radius: 12px;
+            padding: 20px;
+            width: 70%;
+            max-width: 435px;
+            z-index: 1000;
+            text-align: center; /* Центрирование текста */
+        }
+
+        .modal h3 {
+            margin: 0;
+            font-size: 1.8em;
+            color: #ffcc00;
+            text-align: center;
+        }
+
+        .modal label {
+            display: block;
+            margin-top: 15px;
+            font-size: 1.2em;
+            color: #ffcc00;
+            text-align: center;
+        }
+
+        .modal input {
+            width: 100%; /* Полная ширина */
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1em;
+            background-color: #444;
             color: #fff;
         }
 
-        .enroll-btn {
-            background-color: #2ecc71;
+        .modal input:focus {
+            outline: none;
+            box-shadow: 0 0 4px 2px rgba(255, 204, 0, 0.5);
+            border: 1px solid #ffcc00;
         }
 
-        .continue-btn {
-            background-color: #3498db;
-        }
-
-        .error {
-            color: red;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .add-course-item {
-            background-color: #444;
-            border: 2px dashed #ffcc00;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .modal button {
+            margin-top: 15px;
+            padding: 12px;
+            width: 100%; /* Полная ширина */
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            background-color: #ffcc00;
             cursor: pointer;
-            height: 300px;
+            font-size: 1.2em;
         }
 
-        .add-course-title {
-            font-size: 1.5em;
-            color: #ffcc00;
+        .modal button:hover {
+            background-color: #e6b800;
+        }
+
+        .modal-close {
+            background-color: #e74c3c;
+            margin-top: 10px;
+        }
+
+        .modal-close:hover {
+            background-color: #c0392b;
         }
     </style>
 </head>
 <body>
-<div class="header">
-    <div class="logo">Образовательные курсы Gwynbleidd</div>
-    <button class="logout-btn" onclick="logout()">Выход</button>
+<header class="header">
+    <div class="logo">
+        <img src="../image/logo.jpg" alt="Логотип">
+        <span>Образовательные курсы Gwynbleidd</span>
+    </div>
+    <div class="buttons">
+        <button class="add-course-btn" id="addCourseBtn" onclick="redirectToCreateCourse()">Добавить курс</button>
+        <button class="auth-btn" onclick="handleAuth()">Войти</button>
+    </div>
+</header>
+
+<main>
+    <div id="error" class="error"></div>
+    <div id="courses-list" class="courses-list"></div>
+</main>
+
+<footer>
+    © 2024 Лазаренко Сергей Александрович | <a href="https://github.com/Gwynbleidd0241" target="_blank">Политика конфиденциальности</a>
+</footer>
+
+<!-- Модальное окно -->
+<div class="modal" id="updateModal">
+    <div class="modal-content">
+        <h3>Изменить курс</h3>
+        <label for="courseTitle">Название курса</label>
+        <input type="text" id="courseTitle" placeholder="Введите название">
+        <label for="courseDescription">Описание курса</label>
+        <input type="text" id="courseDescription" placeholder="Введите описание">
+        <label for="courseImage">Ссылка на изображение</label>
+        <input type="text" id="courseImage" placeholder="Введите URL изображения">
+        <label for="courseUrl">Ссылка на курс</label>
+        <input type="text" id="courseUrl" placeholder="Введите URL курса">
+        <button onclick="saveChanges()">Сохранить</button>
+        <button class="modal-close" onclick="closeModal()">Закрыть</button>
+    </div>
 </div>
 
-<div id="error" class="error"></div>
-<ul id="courses-list" class="courses-list"></ul>
-
 <script>
-    async function fetchCourses() {
-        try {
-            const response = await fetch('http://localhost:8083/courses', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+    let currentCourseId = null;
 
-            if (!response.ok) {
-                throw new Error('Ошибка загрузки курсов');
-            }
-
-            const courses = await response.json();
-            displayCourses(courses);
-        } catch (error) {
-            document.getElementById('error').textContent = 'Не удалось загрузить курсы. Попробуйте позже.';
-            console.error('Ошибка:', error);
-        }
+    function toggleMenu(menu) {
+        const open = menu.style.display === "block";
+        document.querySelectorAll(".course-menu").forEach(el => el.style.display = "none");
+        menu.style.display = open ? "none" : "block";
     }
 
     function displayCourses(courses) {
@@ -161,59 +314,270 @@
         coursesList.innerHTML = '';
 
         courses.forEach(course => {
-            const listItem = document.createElement('li');
+            const listItem = document.createElement('div');
             listItem.className = 'course-item';
 
             const image = document.createElement('img');
             image.className = 'course-image';
-            image.src = course.image_url || 'https://via.placeholder.com/150';
+            image.src = course.image_url || 'https://via.placeholder.com/200';
             image.alt = 'Изображение курса';
 
             const title = document.createElement('h2');
             title.className = 'course-title';
-            title.textContent = course.name;
+            title.textContent = course.title;
 
             const description = document.createElement('p');
             description.className = 'course-description';
             description.textContent = course.description;
 
-            const buttons = document.createElement('div');
-            buttons.className = 'course-buttons';
+            const options = document.createElement('div');
+            options.className = 'course-options';
+            options.textContent = '⋮';
+            options.onclick = () => toggleMenu(menu);
 
-            const button = document.createElement('button');
-            if (course.isEnrolled) {
-                button.textContent = 'Продолжить обучение';
-                button.className = 'btn continue-btn';
-            } else {
-                button.textContent = 'Записаться';
-                button.className = 'btn enroll-btn';
-            }
+            const menu = document.createElement('div');
+            menu.className = 'course-menu';
+            menu.innerHTML = `
+                <button onclick="showUpdateForm(${course.id}, '${course.title}', '${course.description}', '${course.image_url}', '${course.course_url}')">Изменить</button>
+                <button onclick="deleteCourse(${course.id})">Удалить</button>
+            `;
+            listItem.appendChild(menu);
 
-            buttons.appendChild(button);
             listItem.appendChild(image);
             listItem.appendChild(title);
             listItem.appendChild(description);
-            listItem.appendChild(buttons);
+            listItem.appendChild(options);
+
             coursesList.appendChild(listItem);
         });
+    }
 
-        const addCourseItem = document.createElement('li');
-        addCourseItem.className = 'add-course-item';
-        addCourseItem.innerHTML = '<h2 class="add-course-title">+</h2>';
-        addCourseItem.onclick = () => {
-            window.location.href = '/create-course.html';
+    async function deleteCourse(courseId) {
+        const backends = ['http://localhost:8083/api/courses/', 'http://localhost:8084/api/courses/'];
+        for (const backend of backends) {
+            try {
+                const response = await fetch(`${backend}${courseId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                });
+                if (response.ok) {
+                    alert("Курс успешно удален");
+                    fetchCourses();
+                    return;
+                }
+            } catch (error) {
+                console.error(`Ошибка удаления на ${backend}:`, error);
+            }
+        }
+        alert("Не удалось удалить курс");
+    }
+
+    async function fetchCourses() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            document.getElementById('courses-list').innerHTML = '<p>Авторизуйтесь, чтобы увидеть курсы.</p>';
+            return;
+        }
+
+        const backends = ['http://localhost:8083/api/courses/', 'http://localhost:8084/api/courses/'];
+        let courses = [];
+        for (const backend of backends) {
+            try {
+                const response = await fetch(backend, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    courses = result.data || [];
+                    break;
+                } else {
+                    console.warn(`Ошибка при запросе: ${response.status}, ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error(`Ошибка запроса к ${backend}:`, error);
+            }
+        }
+
+        displayCourses(courses);
+    }
+
+    function showUpdateForm(courseId, title, description, imageUrl, courseUrl) {
+        if (!courseId) {
+            console.error("ID курса не найден");
+            return;
+        }
+
+        currentCourseId = courseId;
+        document.getElementById('courseTitle').value = title || '';
+        document.getElementById('courseDescription').value = description || '';
+        document.getElementById('courseImage').value = imageUrl || '';
+        document.getElementById('courseUrl').value = courseUrl || '';
+        document.getElementById('updateModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('updateModal').style.display = 'none';
+    }
+
+    async function saveChanges() {
+        const updatedData = {
+            title: document.getElementById('courseTitle').value,
+            description: document.getElementById('courseDescription').value,
+            image_url: document.getElementById('courseImage').value,
+            course_url: document.getElementById('courseUrl').value,
         };
 
-        coursesList.appendChild(addCourseItem);
+        const backends = ['http://localhost:8083/api/courses/', 'http://localhost:8084/api/courses/'];
+        for (const backend of backends) {
+            try {
+                const response = await fetch(`${backend}${currentCourseId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(updatedData),
+                });
+                if (response.ok) {
+                    fetchCourses();
+                    closeModal();
+                    return;
+                }
+            } catch (error) {
+                console.error(`Ошибка обновления на ${backend}:`, error);
+            }
+        }
+        alert("Не удалось обновить курс");
     }
 
-    function logout() {
-        localStorage.removeItem('token');
-        alert("Вы успешно вышли из аккаунта!");
-        window.location.href = '/auth/sign-in.html';
+    function redirectToCreateCourse() {
+        window.location.href = '/create-course.html';
     }
 
+    function initAuthButton() {
+        const authBtn = document.querySelector('.auth-btn');
+        const token = localStorage.getItem('token');
+
+        if (token) {
+            authBtn.textContent = 'Выйти';
+            authBtn.onclick = () => {
+                localStorage.removeItem('token');
+                alert('Вы вышли из аккаунта');
+                location.reload();
+            };
+        } else {
+            authBtn.textContent = 'Войти';
+            authBtn.onclick = () => (window.location.href = '/auth/sign-in.html');
+        }
+    }
+
+    function toggleAddCourseButton() {
+        const token = localStorage.getItem('token');
+        const addCourseBtn = document.getElementById('addCourseBtn');
+        if (token) {
+            addCourseBtn.style.display = 'inline-block';
+        } else {
+            addCourseBtn.style.display = 'none';
+        }
+    }
+
+    initAuthButton();
+    toggleAddCourseButton();
     fetchCourses();
+</script>
+</body>
+</html>
+
+<script>
+
+    function showUpdateForm(courseId, title, description, imageUrl, courseUrl) {
+        if (!courseId) {
+            console.error("ID курса не найден");
+            return;
+        }
+
+        currentCourseId = courseId;
+        document.getElementById('courseTitle').value = title || '';
+        document.getElementById('courseDescription').value = description || '';
+        document.getElementById('courseImage').value = imageUrl || '';
+        document.getElementById('courseUrl').value = courseUrl || '';
+        document.getElementById('updateModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('updateModal').style.display = 'none';
+    }
+
+    async function saveChanges() {
+        const updatedData = {
+            title: document.getElementById('courseTitle').value,
+            description: document.getElementById('courseDescription').value,
+            image_url: document.getElementById('courseImage').value,
+            course_url: document.getElementById('courseUrl').value,
+        };
+
+        const backends = ['http://localhost:8083/api/courses/', 'http://localhost:8084/api/courses/'];
+        for (const backend of backends) {
+            try {
+                const response = await fetch(`${backend}${currentCourseId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(updatedData),
+                });
+                if (response.ok) {
+                    alert("Курс успешно обновлен");
+                    fetchCourses();
+                    closeModal();
+                    return;
+                }
+            } catch (error) {
+                console.error(`Ошибка обновления на ${backend}:`, error);
+            }
+        }
+        alert("Не удалось обновить курс");
+    }
+
+    function initAuthButton() {
+        const authBtn = document.querySelector('.auth-btn');
+        const token = localStorage.getItem('token');
+
+        if (token) {
+            authBtn.textContent = 'Выйти';
+            authBtn.onclick = () => {
+                localStorage.removeItem('token');
+                alert('Вы вышли из аккаунта');
+                location.reload();
+            };
+        } else {
+            authBtn.textContent = 'Войти';
+            authBtn.onclick = () => (window.location.href = '/auth/sign-in.html');
+        }
+    }
+
+    function toggleAddCourseButton() {
+        const token = localStorage.getItem('token');
+        const addCourseBtn = document.getElementById('addCourseBtn');
+        if (token) {
+            addCourseBtn.style.display = 'inline-block';
+        } else {
+            addCourseBtn.style.display = 'none';
+        }
+    }
+
+    initAuthButton();
+    toggleAddCourseButton();
+    fetchCourses();
+
 </script>
 </body>
 </html>

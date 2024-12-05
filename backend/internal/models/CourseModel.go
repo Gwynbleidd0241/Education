@@ -2,7 +2,7 @@ package models
 
 import "errors"
 
-type CourseList struct {
+type Course struct {
 	Id          int    `json:"id" db:"id"`
 	Title       string `json:"title" db:"title" binding:"required"`
 	Description string `json:"description" db:"description" binding:"required"`
@@ -16,25 +16,17 @@ type UsersList struct {
 	ListId int
 }
 
-type UpdateListInput struct {
+type UpdateCourseInput struct {
 	Title       *string `json:"title"`
 	Description *string `json:"description"`
 	Image_url   *string `json:"image_url"`
 	Course_url  *string `json:"course_url"`
 }
 
-func (i UpdateListInput) Validate() error {
+func (i UpdateCourseInput) Validate() error {
 	if i.Title == nil && i.Description == nil && i.Image_url == nil && i.Course_url == nil {
 		return errors.New("update structure has no values")
 	}
 
 	return nil
-}
-
-type CourseItem struct {
-	Id          int    `json:"id" db:"id"`
-	Title       string `json:"title" db:"title" binding:"required"`
-	Description string `json:"description" db:"description"`
-	Image_url   string `json:"image_url" db:"image_url"`
-	Course_url  string `json:"course_url" db:"course_url"`
 }
