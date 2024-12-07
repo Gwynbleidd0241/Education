@@ -44,7 +44,7 @@ func main() {
 
 	router := gin.Default()
 	CORSconfig := cors.DefaultConfig()
-	CORSconfig.AllowOrigins = []string{"http://google.com", "http://localhost:2001", "http://195.133.20.34:2001/course-list.html"}
+	CORSconfig.AllowOrigins = []string{"http://google.com", "http://localhost:2001", "http://195.133.20.34:2001"}
 	CORSconfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	CORSconfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE"}
 	router.Use(cors.New(CORSconfig))
