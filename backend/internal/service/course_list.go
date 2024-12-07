@@ -37,12 +37,10 @@ func (s *CourseService) Update(userId, listId int, input models.UpdateCourseInpu
 	return s.repo.Update(userId, listId, input)
 }
 
-// Service
 func (s *CourseService) GetByProfession(profession string) ([]models.Course, error) {
 	return s.repo.GetCoursesByProfession(profession)
 }
 
-// Service
 func (s *CourseService) AddUserCourse(userId, courseId int) error {
 	return s.repo.AddUserCourse(userId, courseId)
 }

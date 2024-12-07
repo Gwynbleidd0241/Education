@@ -117,7 +117,6 @@ func (r *CoursePostgres) Update(userId, listId int, input models.UpdateCourseInp
 	return err
 }
 
-// Repository
 func (r *CoursePostgres) GetCoursesByProfession(profession string) ([]models.Course, error) {
 	var courses []models.Course
 	query := `SELECT id, title, description, image_url, course_url
@@ -126,7 +125,6 @@ func (r *CoursePostgres) GetCoursesByProfession(profession string) ([]models.Cou
 	return courses, err
 }
 
-// Repository
 func (r *CoursePostgres) AddUserCourse(userId, courseId int) error {
 	query := `INSERT INTO user_courses (user_id, course_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`
 	_, err := r.db.Exec(query, userId, courseId)

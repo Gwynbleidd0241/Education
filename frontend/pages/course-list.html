@@ -297,7 +297,6 @@
             font-style: italic;
         }
 
-        /* Стили для выпадающего списка курсов */
         .dropdown {
             position: absolute;
             top: 100%;
@@ -308,8 +307,8 @@
             margin-top: 4px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             z-index: 10;
-            max-height: 400px; /* Ограничение высоты */
-            overflow-y: auto; /* Прокрутка при переполнении */
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         .dropdown-option {
@@ -347,7 +346,6 @@
             background-color: #218838;
         }
 
-        /* Scrollbar styling for dropdown */
         .dropdown::-webkit-scrollbar {
             width: 8px;
         }
@@ -370,55 +368,18 @@
             color: #ffcc00;
             font-size: 20px;
             cursor: pointer;
-            display: none; /* Скрываем по умолчанию */
+            display: none;
         }
 
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
                 align-items: flex-start;
+                padding: 10px;
             }
 
-            .header .buttons {
-                justify-content: center;
-            }
-
-            .courses-list {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            }
-
-            .course-item {
-                padding: 15px;
-            }
-
-            .course-title {
-                font-size: 1em;
-            }
-
-            .course-description {
-                font-size: 0.8em;
-            }
-
-            .course-btn {
-                font-size: 0.9em; /* Уменьшаем шрифт на планшетах */
-            }
-
-            .course-actions {
-                flex-direction: column; /* Переключаем на вертикальный вид кнопок */
-                gap: 5px; /* Уменьшаем расстояние между кнопками */
-            }
-        }
-
-        @media (max-width: 480px) {
-            .course-btn {
-                font-size: 0.85em; /* Уменьшаем шрифт на мобильных */
-                padding: 8px 16px;
-            }
-
-            .course-actions {
-                flex-direction: column; /* Кнопки в вертикальном порядке */
-                align-items: center; /* Центрируем кнопки */
-                gap: 5px;
+            .search-container {
+                max-width: 100%;
             }
 
             .courses-list {
@@ -431,6 +392,48 @@
             }
 
             .course-title {
+                font-size: 1em;
+            }
+
+            .course-description {
+                font-size: 0.8em;
+            }
+
+            .course-image {
+                width: 100px;
+                height: 100px;
+            }
+
+            .course-btn {
+                font-size: 0.8em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 5px;
+            }
+
+            .search-input {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+
+            .dropdown {
+                max-height: 200px;
+                font-size: 14px;
+            }
+
+            .courses-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .course-image {
+                width: 80px;
+                height: 80px;
+            }
+
+            .course-title {
                 font-size: 0.9em;
             }
 
@@ -438,20 +441,12 @@
                 font-size: 0.75em;
             }
 
-            .course-image {
-                max-width: 120px;
-                height: 80px;
-            }
-
-            .header .logo span {
-                font-size: 1.2em;
-            }
-
-            .header button {
-                padding: 8px 10px;
-                font-size: 12px;
+            .course-btn {
+                font-size: 0.7em;
+                padding: 8px 16px;
             }
         }
+
     </style>
 </head>
 <body>
@@ -526,6 +521,8 @@
         const coursesList = document.getElementById('courses-list');
         coursesList.innerHTML = '';
 
+        const userCourses = JSON.parse(localStorage.getItem('userCourses') || '[]');
+
         courses.forEach(course => {
             const listItem = document.createElement('div');
             listItem.className = 'course-item';
@@ -549,24 +546,26 @@
             continueButton.href = course.course_url || '#';
             continueButton.target = '_blank';
 
-            const options = document.createElement('div');
-            options.className = 'course-options';
-            options.textContent = '⋮';
-            options.onclick = () => toggleMenu(menu);
+            if (!userCourses.some(userCourse => userCourse.id === course.id)) {
+                const options = document.createElement('div');
+                options.className = 'course-options';
+                options.textContent = '⋮';
+                options.onclick = () => toggleMenu(menu);
 
-            const menu = document.createElement('div');
-            menu.className = 'course-menu';
-            menu.innerHTML = `
-            <button onclick="showUpdateForm(${course.id}, '${course.title}', '${course.description}', '${course.image_url}', '${course.course_url}')">Изменить</button>
-            <button onclick="deleteCourse(${course.id})">Удалить</button>
-        `;
-            listItem.appendChild(menu);
-
+                const menu = document.createElement('div');
+                menu.className = 'course-menu';
+                menu.innerHTML = `
+                <button onclick="showUpdateForm(${course.id}, '${course.title}', '${course.description}', '${course.image_url}', '${course.course_url}')">Изменить</button>
+                <button onclick="deleteCourse(${course.id})">Удалить</button>
+            `;
+                listItem.appendChild(menu);
+                listItem.appendChild(options);
+            }
+            
             listItem.appendChild(image);
             listItem.appendChild(title);
             listItem.appendChild(description);
             listItem.appendChild(continueButton);
-            listItem.appendChild(options);
 
             coursesList.appendChild(listItem);
         });
@@ -602,11 +601,10 @@
         const searchContainer = document.querySelector('.search-container');
 
         if (!token) {
-            // Если пользователь не авторизован
             welcomeMessage.style.display = 'block';
             welcomeMessage.innerHTML = 'Добро пожаловать! Авторизируйтесь, чтобы получить доступ к созданию и управлению образовательными курсами.';
-            coursesList.style.display = 'none'; // Скрываем список курсов
-            searchContainer.style.display = 'none'; // Скрываем поисковик
+            coursesList.style.display = 'none';
+            searchContainer.style.display = 'none';
             return;
         }
 
@@ -615,12 +613,11 @@
         searchContainer.style.display = 'block';
 
         const endpoints = ['http://localhost:8083/api/courses/', 'http://localhost:8084/api/courses/'];
-        const userCoursesEndpoint = 'http://localhost:8083/api/user/courses'; // Эндпоинт для добавленных курсов
+        const userCoursesEndpoint = 'http://localhost:8083/api/user/courses';
 
         let allCourses = [];
         let userCourses = [];
 
-        // Получение всех курсов
         for (const endpoint of endpoints) {
             try {
                 const response = await fetch(endpoint, {
@@ -643,7 +640,6 @@
             }
         }
 
-        // Получение добавленных пользователем курсов
         try {
             const response = await fetch(userCoursesEndpoint, {
                 method: 'GET',
@@ -656,17 +652,14 @@
             if (response.ok) {
                 const result = await response.json();
                 userCourses = result.data || [];
+                localStorage.setItem('userCourses', JSON.stringify(userCourses)); // Сохраняем курсы пользователя
             } else {
                 console.warn(`Ошибка при запросе: ${response.status}, ${response.statusText}`);
             }
         } catch (error) {
             console.error(`Ошибка запроса к ${userCoursesEndpoint}:`, error);
         }
-
-        // Объединение курсов
         const allDisplayedCourses = [...userCourses, ...allCourses];
-
-        // Отображение курсов
         displayCourses(allDisplayedCourses);
     }
 
@@ -756,6 +749,9 @@
     const searchInput = document.querySelector('.search-input');
 
     function showDropdown() {
+        if (searchInput.value.trim() === '') {
+            displayProfessionOptions();
+        }
         dropdown.style.width = `${searchInput.offsetWidth}px`;
         dropdown.style.display = 'block';
         document.querySelector('.close-dropdown-btn').style.display = 'block';
@@ -765,7 +761,7 @@
     function hideDropdown() {
         setTimeout(() => {
             dropdown.style.display = 'block';
-        }, 200); // Timeout, чтобы успеть кликнуть по опции
+        }, 200);
     }
 
     function selectOption(value) {
@@ -774,8 +770,8 @@
     }
 
     function resetDropdown() {
-        dropdown.innerHTML = ''; // Очищаем содержимое dropdown
-        displayProfessionOptions(); // Восстанавливаем список профессий
+        dropdown.innerHTML = '';
+        displayProfessionOptions();
     }
 
     function displayProfessionOptions() {
@@ -790,7 +786,7 @@
             'Тестирование (QA)'
         ];
 
-        dropdown.innerHTML = ''; // Очищаем dropdown перед добавлением новых опций
+        dropdown.innerHTML = '';
 
         professions.forEach(profession => {
             const option = document.createElement('div');
@@ -800,16 +796,17 @@
             dropdown.appendChild(option);
         });
 
-        dropdown.style.width = `${searchInput.offsetWidth}px`; // Устанавливаем ширину как у поисковой строки
-        dropdown.style.display = 'block'; // Показываем dropdown с профессиями
+        dropdown.style.width = `${searchInput.offsetWidth}px`;
+        dropdown.style.display = 'block';
         document.querySelector('.close-dropdown-btn').style.display = 'block';
         document.querySelector('.close-dropdown-btn').style.right = '-40px';
     }
 
     function closeDropdown() {
-        dropdown.style.display = 'none'; // Скрываем dropdown
-        document.querySelector('.close-dropdown-btn').style.display = 'none'; // Скрываем кнопку закрытия
-        searchInput.value = ''; // Сбрасываем строку поиска
+        dropdown.style.display = 'none';
+        document.querySelector('.close-dropdown-btn').style.display = 'none';
+        searchInput.value = '';
+        dropdown.innerHTML = '';
     }
 
     async function fetchCourse(profession) {
@@ -829,7 +826,7 @@
                 const response = await fetch(endpoint, {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` // Добавление токена в заголовок
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 if (response.ok) {
@@ -875,7 +872,10 @@
             addButton.textContent = '+';
             addButton.onclick = async () => {
                 const success = await addCourse(course.id);
-                if (success) fetchCourse(searchInput.value); // После добавления сбрасываем dropdown
+                if (success) {
+                    await fetchCourse(searchInput.value);
+                    closeDropdown();
+                }
             };
 
             courseOption.appendChild(courseName);
@@ -905,16 +905,16 @@
             if (response.ok) {
                 alert('Курс успешно добавлен!');
                 await fetchCourses();
-                return true; // Успешное добавление
+                return true;
             } else {
                 alert('Ошибка добавления курса. Попробуйте снова.');
                 console.error(`Ошибка добавления курса: ${response.status}`);
-                return false; // Ошибка добавления
+                return false;
             }
         } catch (error) {
             alert('Ошибка соединения. Попробуйте снова.');
             console.error(`Ошибка запроса: ${error.message}`);
-            return false; // Ошибка сети
+            return false;
         }
     }
 

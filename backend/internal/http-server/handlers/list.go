@@ -100,7 +100,7 @@ func (h *Handler) updateCourses(c *gin.Context) {
 	}
 
 	if input.Profession != nil && *input.Profession == "" {
-		*input.Profession = "Неизвестно" // Значение по умолчанию
+		*input.Profession = "Неизвестно"
 	}
 
 	if err := h.services.Course.Update(userId, id, input); err != nil {
@@ -135,7 +135,6 @@ func (h *Handler) deleteCourses(c *gin.Context) {
 	})
 }
 
-// Handler
 func (h *Handler) getCoursesByProfession(c *gin.Context) {
 	profession := c.Query("profession")
 	if profession == "" {
@@ -163,7 +162,7 @@ func (h *Handler) addUserCourse(c *gin.Context) {
 		return
 	}
 
-	userId, err := getUserId(c) // Проверить токен и получить user_id
+	userId, err := getUserId(c)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
