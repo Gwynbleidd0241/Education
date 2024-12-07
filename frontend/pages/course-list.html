@@ -573,7 +573,7 @@
 
 
     async function deleteCourse(courseId) {
-        const backends = ['http://localhost:8083/api/courses/', 'http://localhost:8084/api/courses/'];
+        const backends = ['http://195.133.20.34:8083/api/courses/', 'http://195.133.20.34:8084/api/courses/'];
         for (const backend of backends) {
             try {
                 const response = await fetch(`${backend}${courseId}`, {
@@ -612,8 +612,8 @@
         coursesList.style.display = 'grid';
         searchContainer.style.display = 'block';
 
-        const endpoints = ['http://localhost:8083/api/courses/', 'http://localhost:8084/api/courses/'];
-        const userCoursesEndpoint = 'http://localhost:8083/api/user/courses';
+        const endpoints = ['http://195.133.20.34:8083/api/courses/', 'http://195.133.20.34:8084/api/courses/'];
+        const userCoursesEndpoint = 'http://195.133.20.34:8083/api/user/courses';
 
         let allCourses = [];
         let userCourses = [];
@@ -690,7 +690,7 @@
             course_url: document.getElementById('courseUrl').value,
         };
 
-        const backends = ['http://localhost:8083/api/courses/', 'http://localhost:8084/api/courses/'];
+        const backends = ['http://195.133.20.34:8083/api/courses/', 'http://195.133.20.34:8084/api/courses/'];
         for (const backend of backends) {
             try {
                 const response = await fetch(`${backend}${currentCourseId}`, {
@@ -811,8 +811,8 @@
 
     async function fetchCourse(profession) {
         const endpoints = [
-            `http://localhost:8083/api/courses/profession?profession=${encodeURIComponent(profession)}`,
-            `http://localhost:8084/api/courses/profession?profession=${encodeURIComponent(profession)}`
+            `http://195.133.20.34:8083/api/courses/profession?profession=${encodeURIComponent(profession)}`,
+            `http://195.133.20.34:8084/api/courses/profession?profession=${encodeURIComponent(profession)}`
         ];
 
         let courses = [];
@@ -893,7 +893,7 @@
 
     async function addCourse(courseId) {
         try {
-            const response = await fetch('http://localhost:8083/api/user/courses', {
+            const response = await fetch('http://195.133.20.34:8083/api/user/courses', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
