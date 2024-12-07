@@ -33,6 +33,7 @@
         }
 
         .container {
+            position: relative;
             width: 100%;
             max-width: 400px;
             background-color: rgba(0, 0, 0, 0.85);
@@ -40,6 +41,22 @@
             padding: 24px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
             box-sizing: border-box;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background-color: transparent;
+            border: none;
+            font-size: 24px;
+            color: #ffcc00;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #fff;
         }
 
         h1 {
@@ -120,11 +137,11 @@
         }
 
         .message.success {
-            color: #4caf50; /* Зелёный для успеха */
+            color: #4caf50;
         }
 
         .message.error {
-            color: #ff6b6b; /* Красный для ошибок */
+            color: #ff6b6b;
         }
 
         #passwordStrength {
@@ -133,27 +150,33 @@
         }
 
         .strength-weak {
-            color: #ff6b6b; /* Красный для слабого пароля */
+            color: #ff6b6b;
         }
 
         .strength-medium {
-            color: #ffcc00; /* Жёлтый для среднего пароля */
+            color: #ffcc00;
         }
 
         .strength-strong {
-            color: #4caf50; /* Зелёный для сильного пароля */
+            color: #4caf50;
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 20px;
-            }
             .container {
                 padding: 16px;
+                max-width: 80%;
             }
+
+            .close-btn {
+                top: 12px;
+                right: 12px;
+                font-size: 20px;
+            }
+
             h1 {
                 font-size: 22px;
             }
+
             .btn {
                 font-size: 12px;
                 padding: 10px;
@@ -162,8 +185,8 @@
     </style>
 </head>
 <body>
-
 <div class="container">
+    <button class="close-btn" onclick="goBack()">×</button>
     <h1>Регистрация</h1>
     <div class="message" id="signUpMessage"></div>
     <div class="form-group">
@@ -238,7 +261,7 @@
 
                 if (response.ok) {
                     success = true;
-                    messageElement.innerText = 'Регистрация успешна. Переход на страницу входа...';
+                    messageElement.innerText = 'Регистрация успешна. Переход на страницу главнуюю страницу';
                     messageElement.className = 'message success';
                     setTimeout(() => redirectToLogin(), 3000);
                     break;
@@ -256,6 +279,10 @@
             messageElement.innerText = errorMessage || 'Не удалось зарегистрироваться. Попробуйте позже.';
             messageElement.className = 'message error';
         }
+    }
+
+    function goBack() {
+        window.location.href = '/course-list.html';
     }
 </script>
 </body>

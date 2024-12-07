@@ -6,15 +6,21 @@ import (
 	"Kursash/internal/repository"
 	"Kursash/internal/service"
 	"Kursash/notifications"
+	"context"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 // @title           EduCourse
 // @version         1.0
+// @description EduCourse Gwynbleidd Application
+
 // @host      localhost:8080
 
 func main() {
@@ -55,8 +61,26 @@ func main() {
 	handlers := handlers.NewHandler(services)
 
 	srv := new(backend.Server)
-	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes(router)); err != nil {
-		logrus.Fatal("error occured while running hhtp server: %s", err.Error())
+	go func() {
+		if err := srv.Run(viper.GetString("port"), handlers.InitRoutes(router)); err != nil {
+			logrus.Fatal("error occured while running hhtp server: %s", err.Error())
+		}
+	}()
+
+	logrus.Info("EduCourse Gwynbleidd started")
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	logrus.Print("EduCourse Shutting Down")
+
+	if err := srv.Shutdown(context.Background()); err != nil {
+		logrus.Errorf("error occured on server shutting down: %s", err.Error())
+	}
+
+	if err := db.Close(); err != nil {
+		logrus.Errorf("error occured on db connection close: %s", err.Error())
 	}
 }
 

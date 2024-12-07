@@ -33,6 +33,7 @@
     }
 
     .container {
+      position: relative;
       width: 100%;
       max-width: 600px;
       background-color: rgba(0, 0, 0, 0.85);
@@ -40,6 +41,22 @@
       padding: 24px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       box-sizing: border-box;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background-color: transparent;
+      border: none;
+      font-size: 24px;
+      color: #ffcc00;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .close-btn:hover {
+      color: #fff;
     }
 
     h1 {
@@ -62,7 +79,8 @@
     }
 
     input[type="text"],
-    textarea {
+    textarea,
+    select {
       width: 100%;
       padding: 12px;
       border: 1px solid #555;
@@ -79,7 +97,8 @@
     }
 
     input[type="text"]:focus,
-    textarea:focus {
+    textarea:focus,
+    select:focus {
       border-color: #ffcc00;
       outline: none;
       box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.3);
@@ -144,6 +163,7 @@
 </head>
 <body>
 <div class="container">
+  <button class="close-btn" onclick="goBack()">×</button>
   <h1>Создание курса</h1>
   <div id="status" class="error"></div>
 
@@ -167,6 +187,21 @@
     <input type="text" id="course-link" placeholder="Введите URL курса">
   </div>
 
+  <div class="form-group">
+    <label for="course-profession">Направление</label>
+    <select id="course-profession">
+      <option value="" disabled selected>Выберите соответствующее курсу направление</option>
+      <option value="Frontend разработка">Frontend разработка</option>
+      <option value="Backend разработка">Backend разработка</option>
+      <option value="Fullstack разработка">Fullstack разработка</option>
+      <option value="Mobile разработка">Mobile разработка</option>
+      <option value="DevOps">DevOps</option>
+      <option value="Data Science">Data Science</option>
+      <option value="UI/UX дизайн">UI/UX дизайн</option>
+      <option value="Тестирование (QA)">Тестирование (QA)</option>
+    </select>
+  </div>
+
   <div class="form-actions">
     <button class="btn" onclick="saveCourse()">Сохранить курс</button>
   </div>
@@ -178,9 +213,10 @@
     const courseDescription = document.getElementById('course-description').value.trim();
     const courseImage = document.getElementById('course-image').value.trim();
     const courseLink = document.getElementById('course-link').value.trim();
+    const courseProfession = document.getElementById('course-profession').value;
     const statusDiv = document.getElementById('status');
 
-    if (!courseTitle || !courseDescription || !courseImage || !courseLink) {
+    if (!courseTitle || !courseDescription || !courseImage || !courseLink || !courseProfession) {
       statusDiv.textContent = 'Заполните все поля!';
       statusDiv.className = 'error';
       return;
@@ -193,6 +229,7 @@
       description: courseDescription,
       image_url: courseImage,
       course_url: courseLink,
+      profession: courseProfession,
     };
 
     const backends = ['http://localhost:8083/api/courses/', 'http://localhost:8084/api/courses/'];
@@ -216,6 +253,7 @@
           document.getElementById('course-description').value = '';
           document.getElementById('course-image').value = '';
           document.getElementById('course-link').value = '';
+          document.getElementById('course-profession').value = '';
 
           setTimeout(() => {
             window.location.href = 'course-list.html';
@@ -232,6 +270,9 @@
     statusDiv.className = 'error';
   }
 
+  function goBack() {
+    window.location.href = '/course-list.html';
+  }
 </script>
 </body>
 </html>

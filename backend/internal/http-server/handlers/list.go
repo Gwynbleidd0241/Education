@@ -15,6 +15,11 @@ func (h *Handler) createCourse(c *gin.Context) {
 	}
 
 	var input models.Course
+
+	if input.Profession == "" {
+		input.Profession = "Неизвестно"
+	}
+
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -42,14 +47,14 @@ func (h *Handler) getAllCourses(c *gin.Context) {
 		return
 	}
 
-	lists, err := h.services.Course.GetAll(userId)
+	courses, err := h.services.Course.GetAll(userId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, getAllListsResponse{
-		Data: lists,
+		Data: courses,
 	})
 }
 
@@ -94,6 +99,10 @@ func (h *Handler) updateCourses(c *gin.Context) {
 		return
 	}
 
+	if input.Profession != nil && *input.Profession == "" {
+		*input.Profession = "Неизвестно" // Значение по умолчанию
+	}
+
 	if err := h.services.Course.Update(userId, id, input); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -123,5 +132,66 @@ func (h *Handler) deleteCourses(c *gin.Context) {
 
 	c.JSON(http.StatusOK, statusResponse{
 		Status: "ok",
+	})
+}
+
+// Handler
+func (h *Handler) getCoursesByProfession(c *gin.Context) {
+	profession := c.Query("profession")
+	if profession == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "profession is required"})
+		return
+	}
+
+	courses, err := h.services.Course.GetByProfession(profession)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": courses})
+}
+
+// Handler
+func (h *Handler) addUserCourse(c *gin.Context) {
+	var input struct {
+		CourseID int `json:"course_id"`
+	}
+
+	if err := c.BindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+		return
+	}
+
+	userId, err := getUserId(c) // Проверить токен и получить user_id
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	err = h.services.Course.AddUserCourse(userId, input.CourseID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "course added successfully"})
+}
+
+func (h *Handler) getUserCourses(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, "user not authorized")
+		return
+	}
+
+	courses, err := h.services.Course.GetUserCourses(userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, getAllListsResponse{
+		Data: courses,
 	})
 }

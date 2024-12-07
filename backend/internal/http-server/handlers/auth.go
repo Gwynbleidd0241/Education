@@ -50,13 +50,6 @@ func (h *Handler) SignIn(c *gin.Context) {
 		return
 	}
 
-	if input.Username == "admin" && input.Password == "admin" {
-		c.JSON(http.StatusOK, map[string]interface{}{
-			"token": "admin-token",
-		})
-		return
-	}
-
 	token, err := h.services.Authorization.GenerateToken(input.Username, input.Password)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())

@@ -27,9 +27,15 @@ func (h *Handler) InitRoutes(router *gin.Engine) *gin.Engine {
 		{
 			courses.POST("/", h.createCourse)
 			courses.GET("/", h.getAllCourses)
-			courses.GET("/:id", h.getCoursesById)
 			courses.PUT("/:id", h.updateCourses)
 			courses.DELETE("/:id", h.deleteCourses)
+			courses.GET("/profession", h.getCoursesByProfession)
+		}
+
+		user := api.Group("/user")
+		{
+			user.POST("/courses", h.addUserCourse)
+			user.GET("/courses", h.getUserCourses)
 		}
 	}
 	return router

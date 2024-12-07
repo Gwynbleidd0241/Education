@@ -23,8 +23,8 @@ func (r *CoursePostgres) Create(userId int, list models.Course) (int, error) {
 	}
 
 	var id int
-	createListQuery := fmt.Sprintf("INSERT INTO %s (title, description, image_url, course_url) VALUES ($1, $2, $3, $4) RETURNING id", courseTable)
-	row := tx.QueryRow(createListQuery, list.Title, list.Description, list.Image_url, list.Course_url)
+	createListQuery := fmt.Sprintf("INSERT INTO %s (title, description, image_url, course_url, profession) VALUES ($1, $2, $3, $4, $5) RETURNING id", courseTable)
+	row := tx.QueryRow(createListQuery, list.Title, list.Description, list.Image_url, list.Course_url, list.Profession)
 	if err := row.Scan(&id); err != nil {
 		tx.Rollback()
 		return 0, err
@@ -43,7 +43,7 @@ func (r *CoursePostgres) Create(userId int, list models.Course) (int, error) {
 func (r *CoursePostgres) GetAll(userId int) ([]models.Course, error) {
 	var lists []models.Course
 
-	query := fmt.Sprintf("SELECT tl.id, tl.title, tl.description, tl.image_url, tl.course_url FROM %s tl INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1",
+	query := fmt.Sprintf("SELECT tl.id, tl.title, tl.description, tl.image_url, tl.course_url, tl.profession FROM %s tl INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1",
 		courseTable, usersListsTable)
 	err := r.db.Select(&lists, query, userId)
 
@@ -53,7 +53,7 @@ func (r *CoursePostgres) GetAll(userId int) ([]models.Course, error) {
 func (r *CoursePostgres) GetById(userId, listId int) (models.Course, error) {
 	var list models.Course
 
-	query := fmt.Sprintf(`SELECT tl.id, tl.title, tl.description, tl.image_url, tl.course_url FROM %s tl
+	query := fmt.Sprintf(`SELECT tl.id, tl.title, tl.description, tl.image_url, tl.course_url, tl.profession FROM %s tl
 								INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1 AND ul.list_id = $2`,
 		courseTable, usersListsTable)
 	err := r.db.Get(&list, query, userId, listId)
@@ -98,6 +98,12 @@ func (r *CoursePostgres) Update(userId, listId int, input models.UpdateCourseInp
 		argId++
 	}
 
+	if input.Profession != nil {
+		setValues = append(setValues, fmt.Sprintf("profession=$%d", argId))
+		args = append(args, *input.Profession)
+		argId++
+	}
+
 	setQuery := strings.Join(setValues, ", ")
 
 	query := fmt.Sprintf("UPDATE %s tl SET %s FROM %s ul WHERE tl.id = ul.list_id AND ul.list_id=$%d AND ul.user_id=$%d",
@@ -109,4 +115,33 @@ func (r *CoursePostgres) Update(userId, listId int, input models.UpdateCourseInp
 
 	_, err := r.db.Exec(query, args...)
 	return err
+}
+
+// Repository
+func (r *CoursePostgres) GetCoursesByProfession(profession string) ([]models.Course, error) {
+	var courses []models.Course
+	query := `SELECT id, title, description, image_url, course_url
+              FROM course WHERE profession = $1`
+	err := r.db.Select(&courses, query, profession)
+	return courses, err
+}
+
+// Repository
+func (r *CoursePostgres) AddUserCourse(userId, courseId int) error {
+	query := `INSERT INTO user_courses (user_id, course_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`
+	_, err := r.db.Exec(query, userId, courseId)
+	return err
+}
+
+func (r *CoursePostgres) GetUserCourses(userId int) ([]models.Course, error) {
+	var courses []models.Course
+	query := `
+        SELECT c.id, c.title, c.description, c.image_url, c.course_url
+        FROM user_courses uc
+        INNER JOIN course c ON c.id = uc.course_id
+        WHERE uc.user_id = $1
+    `
+
+	err := r.db.Select(&courses, query, userId)
+	return courses, err
 }

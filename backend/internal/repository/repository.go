@@ -16,6 +16,9 @@ type Course interface {
 	GetById(userId, listId int) (models.Course, error)
 	Delete(userId, listId int) error
 	Update(userId, listId int, input models.UpdateCourseInput) error
+	GetCoursesByProfession(profession string) ([]models.Course, error)
+	AddUserCourse(userId, courseId int) error
+	GetUserCourses(userId int) ([]models.Course, error)
 }
 
 type Repository struct {
