@@ -1,0 +1,397 @@
+definitions:
+  handlers.coursesResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Course'
+        type: array
+    type: object
+  handlers.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  handlers.getAllListsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Course'
+        type: array
+    type: object
+  handlers.signInInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handlers.statusResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  handlers.successResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.Course:
+    properties:
+      course_url:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      profession:
+        type: string
+      title:
+        type: string
+    required:
+    - course_url
+    - description
+    - image_url
+    - title
+    type: object
+  models.UpdateCourseInput:
+    properties:
+      course_url:
+        type: string
+      description:
+        type: string
+      image_url:
+        type: string
+      profession:
+        type: string
+      title:
+        type: string
+    type: object
+  models.UserModel:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+host: 195.133.20.34:8080
+info:
+  contact: {}
+  description: EduCourse Gwynbleidd Application
+  title: EduCourse
+  version: "1.0"
+paths:
+  /api/courses/:
+    get:
+      description: Возвращение списка всех курсов пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список курсов
+          schema:
+            $ref: '#/definitions/handlers.getAllListsResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение всех образовательных курсов
+      tags:
+      - courses
+    post:
+      consumes:
+      - application/json
+      description: Создание нового курса пользователем
+      parameters:
+      - description: Данные курса
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Course'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Курс успешно создан
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Создание образовательного курса
+      tags:
+      - courses
+  /api/courses/{id}:
+    delete:
+      description: Удаление курса по указанному ID
+      parameters:
+      - description: ID курса
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Курс успешно удален
+          schema:
+            $ref: '#/definitions/handlers.statusResponse'
+        "400":
+          description: Некорректный ID
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Удаление курса
+      tags:
+      - courses
+    get:
+      description: Возвращение данных курса по указанному ID
+      parameters:
+      - description: ID курса
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о курсе
+          schema:
+            $ref: '#/definitions/models.Course'
+        "400":
+          description: Некорректный ID
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение курса по ID
+      tags:
+      - courses
+    put:
+      consumes:
+      - application/json
+      description: Обновление данных курса
+      parameters:
+      - description: ID курса
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateCourseInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Курс успешно обновлен
+          schema:
+            $ref: '#/definitions/handlers.statusResponse'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление курса
+      tags:
+      - courses
+  /api/courses/profession:
+    get:
+      description: Возвращение списка курсов по указанному направлению
+      parameters:
+      - description: Направление курсов
+        in: query
+        name: profession
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список курсов
+          schema:
+            $ref: '#/definitions/handlers.coursesResponse'
+        "400":
+          description: Направление не указано
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение курсов по направлению
+      tags:
+      - courses
+  /api/user/courses:
+    get:
+      description: Возвращение списка курсов пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список курсов
+          schema:
+            $ref: '#/definitions/handlers.getAllListsResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение курсов пользователя
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: Добавление курса пользователя в список обучающегося
+      parameters:
+      - description: ID курса
+        in: body
+        name: input
+        required: true
+        schema:
+          additionalProperties:
+            type: integer
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Курс успешно добавлен
+          schema:
+            $ref: '#/definitions/handlers.successResponse'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление курса пользователя
+      tags:
+      - user
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Генерация токена для авторизованного пользователя
+      parameters:
+      - description: Данные для авторизации
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.signInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Токен успешно сгенерирован
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Некорректный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Авторизация пользователя
+      tags:
+      - auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Создание нового пользователя и отправление уведомления на почту
+      parameters:
+      - description: Данные пользователя
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пользователь успешно зарегистрирован
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Некорректный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Регистрация пользователя
+      tags:
+      - auth
+swagger: "2.0"

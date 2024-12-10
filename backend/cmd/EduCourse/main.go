@@ -21,7 +21,7 @@ import (
 // @version         1.0
 // @description EduCourse Gwynbleidd Application
 
-// @host      localhost:8080
+// @host      195.133.20.34:8080
 
 func main() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})

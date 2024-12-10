@@ -191,28 +191,46 @@
       return;
     }
 
-    fetch(`http://195.133.20.34:8083/auth/sign-in`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    })
-            .then((response) => {
-              if (!response.ok) throw new Error('Ошибка при входе.');
-              return response.json();
-            })
-            .then((data) => {
-              if (data.token) {
-                localStorage.setItem('token', data.token);
-                window.location.href = '/course-list.html';
-              } else {
-                document.getElementById('loginMessage').innerText = 'Неверные данные для входа!';
-              }
-            })
-            .catch((error) => {
-              document.getElementById('loginMessage').innerText = error.message;
-            });
+    const backends = [
+      'http://195.133.20.34:8083/auth/sign-in',
+      'http://195.133.20.34:8084/auth/sign-in',
+    ];
+
+    let success = false;
+    let errorMessage = '';
+
+    for (let i = 0; i < backends.length; i++) {
+      fetch(backends[i], {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      })
+              .then((response) => {
+                if (!response.ok) throw new Error('Ошибка при входе.');
+                return response.json();
+              })
+              .then((data) => {
+                if (data.token) {
+                  localStorage.setItem('token', data.token);
+                  window.location.href = '/course-list.html';
+                  success = true;
+                } else {
+                  errorMessage = 'Неверные данные для входа!';
+                }
+              })
+              .catch((error) => {
+                console.error(`Ошибка при подключении к ${backends[i]}:`, error);
+                errorMessage = 'Сервер недоступен. Попробуйте позже.';
+              });
+
+      if (success) break;
+    }
+
+    if (!success) {
+      document.getElementById('loginMessage').innerText = errorMessage || 'Не удалось войти. Попробуйте позже.';
+    }
   }
 
   function goBack() {

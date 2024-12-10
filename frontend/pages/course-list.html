@@ -200,6 +200,7 @@
             max-width: 435px;
             z-index: 1000;
             text-align: center;
+            overflow: hidden;
         }
 
         .modal h3 {
@@ -226,6 +227,8 @@
             font-size: 1em;
             background-color: #444;
             color: #fff;
+            box-sizing: border-box;
+            overflow-wrap: break-word;
         }
 
         .modal input:focus {
@@ -407,6 +410,21 @@
             .course-btn {
                 font-size: 0.8em;
             }
+
+            .modal {
+                width: 90%;
+                max-width: 400px;
+            }
+
+            .modal input {
+                font-size: 0.9em;
+                padding: 10px;
+            }
+
+            .modal button {
+                font-size: 1em;
+                padding: 10px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -444,6 +462,26 @@
             .course-btn {
                 font-size: 0.7em;
                 padding: 8px 16px;
+            }
+
+            .modal {
+                width: 95%;
+                max-width: 320px;
+                padding: 15px;
+            }
+
+            .modal h3 {
+                font-size: 1.5em;
+            }
+
+            .modal input {
+                font-size: 0.8em;
+                padding: 8px;
+            }
+
+            .modal button {
+                font-size: 0.9em;
+                padding: 8px;
             }
         }
 

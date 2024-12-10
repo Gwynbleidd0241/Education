@@ -7,6 +7,17 @@ import (
 	"net/http"
 )
 
+// SignUp
+// @Summary      Регистрация пользователя
+// @Description  Создание нового пользователя и отправление уведомления на почту
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        input body models.UserModel true "Данные пользователя"
+// @Success      200 {object} map[string]interface{} "Пользователь успешно зарегистрирован"
+// @Failure      400 {object} map[string]string "Некорректный запрос"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /auth/sign-up [post]
 func (h *Handler) SignUp(c *gin.Context) {
 	var input models.UserModel
 
@@ -42,6 +53,17 @@ type signInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// SignIn
+// @Summary      Авторизация пользователя
+// @Description  Генерация токена для авторизованного пользователя
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        input body signInInput true "Данные для авторизации"
+// @Success      200 {object} map[string]interface{} "Токен успешно сгенерирован"
+// @Failure      400 {object} map[string]string "Некорректный запрос"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /auth/sign-in [post]
 func (h *Handler) SignIn(c *gin.Context) {
 	var input signInInput
 

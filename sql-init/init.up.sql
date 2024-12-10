@@ -12,7 +12,7 @@ CREATE TABLE course (
     description TEXT,
     image_url TEXT,
     course_url TEXT,
-    profession TEXT;
+    profession TEXT
 );
 
 CREATE TABLE users_lists
