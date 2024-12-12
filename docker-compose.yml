@@ -5,10 +5,6 @@ services:
       - "2001:80"
     networks:
       - app-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`frontend.195.133.20.34`)"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
   backend1:
     build: ./backend
@@ -23,8 +19,8 @@ services:
       - db
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`backend1.195.133.20.34`)"
-      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+      - "traefik.http.routers.backend1.rule=Host(`backend1.195.133.20.34`)"
+      - "traefik.http.services.backend1.loadbalancer.server.port=8083"
 
   backend2:
     build: ./backend
@@ -38,8 +34,8 @@ services:
       - db
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`backend2.195.133.20.34`)"
-      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+      - "traefik.http.routers.backend2.rule=Host(`backend2.195.133.20.34`)"
+      - "traefik.http.services.backend2.loadbalancer.server.port=8083"
 
   db:
     image: postgres:15
